@@ -18,29 +18,58 @@ import {
   Textarea,
   useToast,
   Image,
+  Link,
+  Divider,
+  chakra,
 } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
-import { CheckIcon } from '@chakra-ui/icons'
+import { CheckIcon, InfoIcon, EmailIcon, PhoneIcon } from '@chakra-ui/icons'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import heroImage from '../assets/easy-steps-of-web-development-process.jpg'
+import emailjs from '@emailjs/browser'
+import { FaLinkedin, FaGithub, FaMapMarkerAlt, FaUser } from 'react-icons/fa'
+
+// Placeholder for hero device mockup and geometric graphics
+const Placeholder = ({ label }: { label: string }) => (
+  <Flex
+    align="center"
+    justify="center"
+    bg={useColorModeValue('gray.200', 'gray.700')}
+    color={useColorModeValue('gray.500', 'gray.400')}
+    borderRadius="2xl"
+    minH={{ base: '180px', md: '340px', lg: '420px' }}
+    w="full"
+    fontSize="xl"
+    fontWeight="bold"
+    border="2px dashed"
+    borderColor={useColorModeValue('gray.300', 'gray.600')}
+  >
+    {label}
+  </Flex>
+)
 
 // Create motion components
-const MotionBox = motion(Box)
+const MotionBox = motion.create(Box)
 const MotionStack = motion(Stack)
 const MotionSimpleGrid = motion(SimpleGrid)
 
 // Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut"
-    }
-  }
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -80 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.7, ease: 'easeOut' },
+  },
+}
+const fadeInRight = {
+  hidden: { opacity: 0, x: 80 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.7, ease: 'easeOut' },
+  },
 }
 
 const staggerContainer = {
@@ -62,434 +91,462 @@ export default function Home() {
   })
   const toast = useToast()
 
-  const handleScrollToContact = (e: React.MouseEvent<HTMLElement>) => {
+  // --- HERO SECTION ---
+  // Headline, subheadline, device mockup, geometric bg (placeholder)
+  // Button scrolls to contact
+
+  // --- INTRO/FEATURE SECTION ---
+  // Two feature cards: Get Started, Explore Our Work
+  const introFeatures = [
+    {
+      icon: <Icon as={InfoIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Get Started',
+      text: 'Kick off your project with a free consultation and discover how I can help you succeed.',
+    },
+    {
+      icon: <Icon as={StarIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Explore Our Work',
+      text: 'See examples of our custom web solutions and the results we deliver for clients.',
+    },
+  ]
+
+  // --- WEB SOLUTIONS SECTION ---
+  // Two large cards: Custom Web Development, Start a Project
+  const webSolutions = [
+    {
+      title: 'Custom Web Development',
+      text: 'Cutting-edge solutions tailored to your business needs, using the latest technologies.',
+      button: 'See Solutions',
+    },
+    {
+      title: 'Start a Project',
+      text: "Ready to transform your ideas into reality? Let's discuss your vision and goals.",
+      button: 'Contact Us',
+    },
+  ]
+
+  // --- EXPERTISE/SERVICES SECTION ---
+  // Four cards, use your service/feature content
+  const expertise = [
+    {
+      icon: <Icon as={CheckIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Responsive Design',
+      text: 'Seamless user experience on all devices.',
+    },
+    {
+      icon: <Icon as={CheckIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Custom Development',
+      text: 'Built from scratch to suit your unique requirements.',
+    },
+    {
+      icon: <Icon as={CheckIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Cutting-Edge Tech',
+      text: 'Modern frameworks, scalable architecture, and robust security.',
+    },
+    {
+      icon: <Icon as={CheckIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Personalized Approach',
+      text: 'Direct communication and tailored support throughout.',
+    },
+  ]
+
+  // --- PROJECT TYPES SECTION ---
+  // Four cards: Mobile App Design, Web App Design, App Development, Tailored Solutions
+  const projectTypes = [
+    {
+      icon: <Icon as={StarIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Mobile Responsive Design',
+      text: 'Intuitive, engaging mobile experiences for iOS and Android.',
+    },
+    {
+      icon: <Icon as={StarIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Web App Design',
+      text: 'Modern, scalable web applications for any business need.',
+    },
+    {
+      icon: <Icon as={StarIcon} w={8} h={8} color="cyan.400" />,
+      title: 'App Development',
+      text: 'Full-stack development from concept to launch.',
+    },
+    {
+      icon: <Icon as={StarIcon} w={8} h={8} color="cyan.400" />,
+      title: 'Tailored Solutions',
+      text: 'Custom integrations and unique features for your business.',
+    },
+  ]
+
+  // --- CLIENTS/COLLABORATION SECTION ---
+  // Placeholder cards for client logos
+  const clients = [
+    { name: 'Shell', logo: null },
+    { name: 'Coca-Cola', logo: null },
+    { name: 'Google', logo: null },
+  ]
+
+  // --- CONTACT FORM ---
+  // TODO: Replace these with your actual EmailJS credentials
+  const EMAILJS_SERVICE_ID = 'service_exeu1i9';
+  const EMAILJS_TEMPLATE_ID = 'template_s7pt0mb';
+  const EMAILJS_PUBLIC_KEY = 'bPW2rYI6IGLAYJBXU';
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const contactSection = document.getElementById('contact')
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' })
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        },
+        EMAILJS_PUBLIC_KEY
+      )
+      toast({
+        title: 'Message sent!',
+        description: "I'll get back to you as soon as possible.",
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      })
+      setFormData({ name: '', email: '', subject: '', message: '' })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'There was a problem sending your message. Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      })
     }
   }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    toast({
-      title: 'Message sent!',
-      description: "I'll get back to you as soon as possible.",
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    })
-    setFormData({ name: '', email: '', subject: '', message: '' })
-  }
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   return (
-    <Box>
-      {/* Hero Section */}
+    <Box bg={useColorModeValue('white', 'gray.900')} color={useColorModeValue('black', 'gray.100')} w="full" overflowX="hidden">
+      {/* HERO SECTION */}
       <MotionBox
         id="home"
+        scrollMarginTop={{ base: '72px', md: '88px' }}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={fadeInUp}
-        bg={useColorModeValue('gray.50', 'gray.900')}
-        color={useColorModeValue('gray.700', 'gray.200')}
-        py={{ base: 12, md: 28 }}
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInLeft}
       >
-        <Container maxW={{ base: '7xl', md: '6xl', lg: '7xl', xl: '8xl', '2xl': '9xl', '3xl': '10xl', '4xl': '11xl' }}>
-          <Stack
-            align={'center'}
-            spacing={{ base: 8, md: 20 }}
-            py={{ base: 12, md: 28 }}
-            direction={{ base: 'column', md: 'row' }}
-            px={{ base: 4, md: 8, lg: 12 }}
-          >
-            <Stack flex={1} spacing={{ base: 5, md: 10 }} maxW={{ md: '2xl' }}>
-              <Heading
-                lineHeight={1.1}
-                fontWeight={600}
-                fontSize={{ base: '3xl', sm: '4xl', lg: '6xl' }}
-              >
-                <Text
-                  as={'span'}
-                  position={'relative'}
-                  _after={{
-                    content: "''",
-                    width: 'full',
-                    height: '30%',
-                    position: 'absolute',
-                    bottom: 1,
-                    left: 0,
-                    bg: 'blue.400',
-                    zIndex: -1,
-                  }}
-                >
-                  Professional
-                </Text>
-                <br />
-                <Text as={'span'} color={'blue.400'}>
-                  Website Development
-                </Text>
-              </Heading>
-              <Text color={'gray.500'} fontSize={{ base: 'lg', md: 'xl' }}>
-                Transform your business with a custom website that stands out. I
-                specialize in creating beautiful, responsive websites that help
-                your business grow. From design to deployment, I handle every
-                aspect of your web presence.
+        <Container maxW="7xl" py={{ base: 12, md: 24 }}>
+          <Flex direction={{ base: 'column', md: 'row' }} align="center" justify="space-between" gap={12}>
+            <Stack flex={1} spacing={8}>
+              <Text fontSize="sm" color={useColorModeValue('blue.500', 'cyan.400')} fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
+                <Box as="span" color={useColorModeValue('blue.500', 'cyan.400')}>jack buchanan / web developer</Box>
               </Text>
-              <Stack
-                spacing={{ base: 4, sm: 6 }}
-                direction={{ base: 'column', sm: 'row' }}
+              <Heading as="h1" size="2xl" fontWeight="extrabold" lineHeight={1.1} color={useColorModeValue('black', 'gray.100')}>
+                Making your <br /> web designs a reality
+              </Heading>
+              <Text fontSize="xl" color={useColorModeValue('gray.700', 'gray.400')}>
+                Transform your ideas into reality with custom web solutions, modern design, and expert deployment.
+              </Text>
+              <Button
+                colorScheme={useColorModeValue('blue', 'cyan')}
+                size="lg"
+                rounded="full"
+                px={8}
+                alignSelf="flex-start"
+                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <Button
-                  onClick={handleScrollToContact}
-                  rounded={'full'}
-                  size={'lg'}
-                  fontWeight={'normal'}
-                  px={6}
-                  colorScheme={'blue'}
-                  bg={'blue.400'}
-                  _hover={{ bg: 'blue.500' }}
-                >
-                  Get Started
-                </Button>
-              </Stack>
+                Get Started
+              </Button>
             </Stack>
-            <Stack
-              flex={1}
-              justify={'center'}
-              align={'center'}
-              position={'relative'}
-              w={'full'}
-            >
-              <Box
-                position={'relative'}
-                width={'full'}
-                maxW="880px"
-                sx={{
-                  '&::before': {
-                    content: '""',
-                    display: 'block',
-                    paddingTop: '61.818%', // 544/880 * 100 = 61.818% to maintain aspect ratio
-                  }
-                }}
-                rounded={'2xl'}
-                boxShadow={'2xl'}
-                overflow={'hidden'}
-              >
-                <Image
-                  src={heroImage}
-                  alt="Web Development Process"
-                  position="absolute"
-                  top="0"
-                  left="0"
-                  w="100%"
-                  h="100%"
-                  objectFit="cover"
-                  transition="transform 0.3s ease"
-                  _hover={{ transform: 'scale(1.02)' }}
-                />
+            <Box flex={1} maxW="lg" w="full">
+              {/* Device mockup placeholder */}
+              <Placeholder label="Device Mockup Image" />
+              {/* Geometric/tech graphics placeholder */}
+              <Box mt={4}>
+                <Placeholder label="Geometric/Tech Graphics" />
               </Box>
-            </Stack>
-          </Stack>
-        </Container>
-      </MotionBox>
-
-      {/* Features Section */}
-      <MotionBox
-        py={{ base: 16, md: 32 }}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
-      >
-        <Container maxW={{ base: '7xl', md: '6xl', lg: '7xl', xl: '8xl', '2xl': '9xl', '3xl': '10xl', '4xl': '11xl' }}>
-          <MotionStack 
-            spacing={4} 
-            as={Container} 
-            maxW={'3xl'} 
-            textAlign={'center'} 
-            mb={16}
-            variants={fadeInUp}
-          >
-            <Heading fontSize={'3xl'}>Why Choose Me?</Heading>
-            <Text color={'gray.600'} fontSize={{ base: 'lg', md: 'xl' }}>
-              I provide comprehensive web development services tailored to your
-              needs
-            </Text>
-          </MotionStack>
-
-          <Flex justify="center">
-            <MotionSimpleGrid 
-              columns={{ base: 1, md: 2, lg: 3 }} 
-              spacing={10} 
-              maxW="1200px"
-              width="100%"
-              variants={staggerContainer}
-            >
-              <MotionBox variants={fadeInUp}>
-                <Feature
-                  icon={<Icon as={StarIcon} w={10} h={10} />}
-                  title={'Custom Design'}
-                  text={
-                    'Unique, modern designs that reflect your brand identity and engage your audience.'
-                  }
-                />
-              </MotionBox>
-              <MotionBox variants={fadeInUp}>
-                <Feature
-                  icon={<Icon as={StarIcon} w={10} h={10} />}
-                  title={'Responsive Development'}
-                  text={
-                    'Websites that work flawlessly across all devices, from mobile to desktop.'
-                  }
-                />
-              </MotionBox>
-              <MotionBox variants={fadeInUp}>
-                <Feature
-                  icon={<Icon as={StarIcon} w={10} h={10} />}
-                  title={'Professional Deployment'}
-                  text={
-                    'Secure, fast, and reliable hosting with proper setup and maintenance.'
-                  }
-                />
-              </MotionBox>
-            </MotionSimpleGrid>
+            </Box>
           </Flex>
         </Container>
       </MotionBox>
 
-      {/* Services Section */}
+      {/* INTRO/FEATURE SECTION */}
+      <MotionBox
+        py={{ base: 12, md: 20 }}
+        bg={useColorModeValue('white', 'gray.800')}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInRight}
+      >
+        <Container maxW="6xl">
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+            {introFeatures.map((f, i) => (
+              <Box
+                key={i}
+                bg={useColorModeValue('white', 'gray.700')}
+                borderRadius="2xl"
+                p={8}
+                border="1px solid"
+                borderColor={useColorModeValue('blue.400', 'gray.700')}
+                textAlign="center"
+                minH="220px"
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Box color={useColorModeValue('blue.400', 'cyan.400')}>{f.icon}</Box>
+                <Heading as="h3" size="lg" mt={4} mb={2} color={useColorModeValue('blue.500', 'cyan.400')}>{f.title}</Heading>
+                <Text fontSize="lg" color={useColorModeValue('black', 'gray.100')}>{f.text}</Text>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Container>
+      </MotionBox>
+
+      {/* WEB SOLUTIONS SECTION */}
+      <MotionBox
+        py={{ base: 12, md: 20 }}
+        bg={useColorModeValue('white', 'gray.900')}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInLeft}
+      >
+        <Container maxW="6xl">
+          <Text fontSize="sm" color={useColorModeValue('blue.500', 'cyan.400')} fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
+            We specialize in
+          </Text>
+          <Heading as="h2" size="xl" mb={10} color={useColorModeValue('black', 'gray.100')}>
+            Cutting-edge Web Solutions
+          </Heading>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+            {webSolutions.map((ws, i) => (
+              <Box
+                key={i}
+                bg={useColorModeValue('white', 'gray.800')}
+                borderRadius="2xl"
+                p={10}
+                border="1px solid"
+                borderColor={useColorModeValue('blue.400', 'gray.700')}
+                minH="260px"
+                display="flex"
+                flexDirection="column"
+                alignItems="flex-start"
+                justifyContent="center"
+              >
+                <Heading as="h3" size="lg" color={useColorModeValue('blue.500', 'cyan.400')} mb={4}>{ws.title}</Heading>
+                <Text fontSize="lg" mb={6} color={useColorModeValue('black', 'gray.100')}>{ws.text}</Text>
+                <Button colorScheme={useColorModeValue('blue', 'cyan')} variant="outline" rounded="full">{ws.button}</Button>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Container>
+      </MotionBox>
+
+      {/* EXPERTISE/SERVICES SECTION */}
       <MotionBox
         id="services"
-        py={{ base: 16, md: 32 }}
-        bg={useColorModeValue('gray.50', 'gray.900')}
+        scrollMarginTop={{ base: '72px', md: '88px' }}
+        py={{ base: 12, md: 20 }}
+        bg={useColorModeValue('white', 'gray.900')}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInRight}
       >
-        <Container maxW={{ base: '7xl', md: '6xl', lg: '7xl', xl: '8xl', '2xl': '9xl', '3xl': '10xl', '4xl': '11xl' }}>
-          <MotionStack 
-            spacing={4} 
-            as={Container} 
-            maxW={'3xl'} 
-            textAlign={'center'} 
-            mb={16}
-            variants={fadeInUp}
-          >
-            <Heading fontSize={'3xl'}>My Services</Heading>
-            <Text color={'gray.600'} fontSize={{ base: 'lg', md: 'xl' }}>
-              Comprehensive web development services to help your business grow online
-            </Text>
-          </MotionStack>
+        <Container maxW="7xl">
+          <Text fontSize="sm" color={useColorModeValue('blue.500', 'cyan.400')} fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
+            Our Expertise
+          </Text>
+          <Heading as="h2" size="xl" mb={10} color={useColorModeValue('black', 'gray.100')}>
+            Proven Expertise in Web Development
+          </Heading>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
+            {expertise.map((ex, i) => (
+              <Box
+                key={i}
+                bg={useColorModeValue('white', 'gray.700')}
+                borderRadius="2xl"
+                p={8}
+                border="1px solid"
+                borderColor={useColorModeValue('blue.400', 'gray.700')}
+                minH="220px"
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                textAlign="center"
+              >
+                <Box color={useColorModeValue('blue.400', 'cyan.400')}>{ex.icon}</Box>
+                <Heading as="h3" size="md" mt={4} mb={2} color={useColorModeValue('blue.500', 'cyan.400')}>{ex.title}</Heading>
+                <Text fontSize="lg" color={useColorModeValue('black', 'gray.100')}>{ex.text}</Text>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Container>
+      </MotionBox>
 
+      {/* PROJECT TYPES SECTION */}
+      <MotionBox
+        id="get-started"
+        scrollMarginTop={{ base: '72px', md: '88px' }}
+        py={{ base: 12, md: 20 }}
+        bg={useColorModeValue('white', 'gray.800')}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInLeft}
+      >
+        <Container maxW="6xl">
+          <Text fontSize="sm" color={useColorModeValue('blue.500', 'cyan.400')} fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
+            Get Started
+          </Text>
+          <Heading as="h2" size="xl" mb={10} color={useColorModeValue('black', 'gray.100')}>
+            Let's Discuss Your Project
+          </Heading>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+            {projectTypes.map((pt, i) => (
+              <Box
+                key={i}
+                bg={useColorModeValue('white', 'gray.700')}
+                borderRadius="2xl"
+                p={8}
+                border="1px solid"
+                borderColor={useColorModeValue('blue.400', 'gray.700')}
+                minH="220px"
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                textAlign="center"
+              >
+                <Box color={useColorModeValue('blue.400', 'cyan.400')}>{pt.icon}</Box>
+                <Heading as="h3" size="md" mt={4} mb={2} color={useColorModeValue('blue.500', 'cyan.400')}>{pt.title}</Heading>
+                <Text fontSize="lg" color={useColorModeValue('black', 'gray.100')}>{pt.text}</Text>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Container>
+      </MotionBox>
+
+      {/* CLIENTS/COLLABORATION SECTION */}
+      <MotionBox
+        py={{ base: 12, md: 20 }}
+        bg={useColorModeValue('white', 'gray.900')}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInRight}
+      >
+        <Container maxW="5xl">
+          <Text fontSize="sm" color={useColorModeValue('blue.500', 'cyan.400')} fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
+            Trusted by
+          </Text>
+          <Heading as="h2" size="xl" mb={10} color={useColorModeValue('black', 'gray.100')}>
+            Collaborate with Industry Leaders
+          </Heading>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} mb={8}>
+            {clients.map((client, i) => (
+              <Box
+                key={i}
+                bg={useColorModeValue('white', 'gray.700')}
+                borderRadius="2xl"
+                p={8}
+                border="1px solid"
+                borderColor={useColorModeValue('blue.400', 'gray.700')}
+                minH="120px"
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                textAlign="center"
+              >
+                {/* Placeholder for client logo */}
+                <Placeholder label={`${client.name} Logo`} />
+              </Box>
+            ))}
+          </SimpleGrid>
           <Flex justify="center">
-            <MotionSimpleGrid 
-              columns={{ base: 1, md: 2, lg: 3 }} 
-              spacing={10} 
-              maxW="1200px"
-              width="100%"
-              variants={staggerContainer}
-            >
-              <MotionBox variants={fadeInUp}>
-                <ServiceCard
-                  id="services-design"
-                  title={'Website Design'}
-                  icon={<Icon as={CheckIcon} w={10} h={10} />}
-                  description={
-                    'Custom website design tailored to your brand and business needs. Modern, responsive designs that engage your audience.'
-                  }
-                  features={[
-                    'Custom UI/UX Design',
-                    'Responsive Layout',
-                    'Brand Integration',
-                    'Modern Design Trends',
-                    'User-Focused Approach',
-                  ]}
-                />
-              </MotionBox>
-              <MotionBox variants={fadeInUp}>
-                <ServiceCard
-                  id="services-development"
-                  title={'Website Development'}
-                  icon={<Icon as={CheckIcon} w={10} h={10} />}
-                  description={
-                    'Professional development services using the latest technologies to create fast, secure, and scalable websites.'
-                  }
-                  features={[
-                    'React/TypeScript Development',
-                    'Performance Optimization',
-                    'SEO Best Practices',
-                    'Cross-browser Compatibility',
-                    'Clean, Maintainable Code',
-                  ]}
-                />
-              </MotionBox>
-              <MotionBox variants={fadeInUp}>
-                <ServiceCard
-                  id="services-deployment"
-                  title={'Website Deployment'}
-                  icon={<Icon as={CheckIcon} w={10} h={10} />}
-                  description={
-                    'Secure and reliable deployment services to get your website live quickly and efficiently.'
-                  }
-                  features={[
-                    'Hosting Setup',
-                    'SSL Certificate',
-                    'Domain Configuration',
-                    'Performance Monitoring',
-                    'Regular Backups',
-                  ]}
-                />
-              </MotionBox>
-            </MotionSimpleGrid>
+            <Button colorScheme={useColorModeValue('blue', 'cyan')} size="lg" rounded="full">
+              Get in Touch
+            </Button>
           </Flex>
         </Container>
       </MotionBox>
 
-      {/* Contact Section */}
+      {/* CONTACT SECTION */}
       <MotionBox
         id="contact"
-        py={{ base: 16, md: 32 }}
+        scrollMarginTop={{ base: '72px', md: '88px' }}
+        py={{ base: 12, md: 20 }}
+        bg={useColorModeValue('white', 'gray.800')}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={staggerContainer}
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInLeft}
       >
-        <Container maxW={{ base: '7xl', md: '6xl', lg: '7xl', xl: '8xl', '2xl': '9xl', '3xl': '10xl', '4xl': '11xl' }}>
-          <MotionStack 
-            spacing={4} 
-            as={Container} 
-            maxW={'3xl'} 
-            textAlign={'center'} 
-            mb={16}
-            variants={fadeInUp}
-          >
-            <Heading fontSize={'3xl'}>Get in Touch</Heading>
-            <Text color={'gray.600'} fontSize={{ base: 'lg', md: 'xl' }}>
-              Have a project in mind? Let's discuss how I can help bring your vision
-              to life.
-            </Text>
-          </MotionStack>
-
-          <Flex justify="center">
-            <MotionStack
-              spacing={{ base: 6, md: 10 }}
-              direction={{ base: 'column', md: 'row' }}
-              maxW="1200px"
-              width="100%"
-              variants={staggerContainer}
-            >
-              <MotionBox variants={fadeInUp} flex={1}>
-                <Stack spacing={8}>
-                  <form onSubmit={handleSubmit}>
-                    <Stack spacing={4}>
-                      <FormControl id="name" isRequired>
-                        <FormLabel>Name</FormLabel>
-                        <Input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                        />
-                      </FormControl>
-                      <FormControl id="email" isRequired>
-                        <FormLabel>Email</FormLabel>
-                        <Input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                        />
-                      </FormControl>
-                      <FormControl id="subject" isRequired>
-                        <FormLabel>Subject</FormLabel>
-                        <Input
-                          type="text"
-                          name="subject"
-                          value={formData.subject}
-                          onChange={handleChange}
-                        />
-                      </FormControl>
-                      <FormControl id="message" isRequired>
-                        <FormLabel>Message</FormLabel>
-                        <Textarea
-                          name="message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          rows={6}
-                        />
-                      </FormControl>
-                      <Button
-                        type="submit"
-                        colorScheme={'brand'}
-                        bg={'brand.400'}
-                        color={'white'}
-                        _hover={{
-                          bg: 'brand.500',
-                        }}
-                      >
-                        Send Message
-                      </Button>
-                    </Stack>
-                  </form>
+        <Container maxW="4xl">
+          <Text fontSize="sm" color={useColorModeValue('blue.500', 'cyan.400')} fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
+            Contact
+          </Text>
+          <Heading as="h2" size="xl" mb={10} color={useColorModeValue('black', 'gray.100')}>
+            Get in Touch
+          </Heading>
+          <Box bg={useColorModeValue('white', 'gray.700')} borderRadius="2xl" p={8} border="1px solid" borderColor={useColorModeValue('blue.400', 'gray.700')}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+              {/* Personal Info */}
+              <Stack spacing={6} justify="center">
+                <Stack direction="row" align="center" spacing={3}>
+                  <Box color={useColorModeValue('blue.400', 'cyan.400')}><FaUser /></Box>
+                  <Text fontWeight="bold" color={useColorModeValue('black', 'gray.100')}>Jack Buchanan</Text>
                 </Stack>
-              </MotionBox>
-
-              <MotionBox variants={fadeInUp} flex={1}>
-                <Stack spacing={8}>
-                  <Box>
-                    <Heading fontSize={'2xl'}>Contact Information</Heading>
-                    <Stack mt={4} spacing={4}>
-                      <Text>
-                        <strong>Email:</strong> your.email@example.com
-                      </Text>
-                      <Text>
-                        <strong>Location:</strong> Your City, Country
-                      </Text>
-                      <Text>
-                        <strong>Availability:</strong> Monday - Friday, 9:00 AM - 6:00 PM
-                      </Text>
-                    </Stack>
-                  </Box>
-
-                  <Box>
-                    <Heading fontSize={'2xl'}>Follow Me</Heading>
-                    <Stack mt={4} spacing={4}>
-                      <Text>
-                        <strong>LinkedIn:</strong>{' '}
-                        <a href="#" style={{ color: 'var(--chakra-colors-brand-400)' }}>
-                          linkedin.com/in/yourprofile
-                        </a>
-                      </Text>
-                      <Text>
-                        <strong>GitHub:</strong>{' '}
-                        <a href="#" style={{ color: 'var(--chakra-colors-brand-400)' }}>
-                          github.com/yourusername
-                        </a>
-                      </Text>
-                      <Text>
-                        <strong>Twitter:</strong>{' '}
-                        <a href="#" style={{ color: 'var(--chakra-colors-brand-400)' }}>
-                          twitter.com/yourhandle
-                        </a>
-                      </Text>
-                    </Stack>
-                  </Box>
+                <Stack direction="row" align="center" spacing={3}>
+                  <Box color={useColorModeValue('blue.400', 'cyan.400')}><EmailIcon /></Box>
+                  <Text color={useColorModeValue('black', 'gray.100')} fontWeight="medium">jack.buchanan789@gmail.com</Text>
                 </Stack>
-              </MotionBox>
-            </MotionStack>
-          </Flex>
+                <Stack direction="row" align="center" spacing={3}>
+                  <Box color={useColorModeValue('blue.400', 'cyan.400')}><PhoneIcon /></Box>
+                  <Text color={useColorModeValue('black', 'gray.100')} fontWeight="medium">07939984141</Text>
+                </Stack>
+                <Stack direction="row" align="center" spacing={3}>
+                  <Box color={useColorModeValue('blue.400', 'cyan.400')}><FaMapMarkerAlt /></Box>
+                  <Text color={useColorModeValue('black', 'gray.100')}>Essex, England</Text>
+                </Stack>
+              </Stack>
+              {/* Contact Form */}
+              <Box>
+                <form onSubmit={handleSubmit}>
+                  <Stack spacing={4}>
+                    <FormControl id="name" isRequired>
+                      <FormLabel>Your Name</FormLabel>
+                      <Input name="name" value={formData.name} onChange={handleChange} color={useColorModeValue('black', 'gray.100')} />
+                    </FormControl>
+                    <FormControl id="email" isRequired>
+                      <FormLabel>Your Email</FormLabel>
+                      <Input name="email" type="email" value={formData.email} onChange={handleChange} color={useColorModeValue('black', 'gray.100')} />
+                    </FormControl>
+                    <FormControl id="subject">
+                      <FormLabel>Subject</FormLabel>
+                      <Input name="subject" value={formData.subject} onChange={handleChange} color={useColorModeValue('black', 'gray.100')} />
+                    </FormControl>
+                    <FormControl id="message" isRequired>
+                      <FormLabel>Message</FormLabel>
+                      <Textarea name="message" rows={5} value={formData.message} onChange={handleChange} color={useColorModeValue('black', 'gray.100')} />
+                    </FormControl>
+                    <Button colorScheme={useColorModeValue('blue', 'cyan')} size="lg" rounded="full" type="submit">
+                      Send Message
+                    </Button>
+                  </Stack>
+                </form>
+              </Box>
+            </SimpleGrid>
+          </Box>
         </Container>
       </MotionBox>
     </Box>

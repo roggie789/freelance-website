@@ -85,11 +85,11 @@ export default function Navbar() {
       position="sticky"
       top={0}
       zIndex={1000}
-      bg={useColorModeValue('white', 'gray.800')}
+      bg={useColorModeValue('gray.900', 'gray.900')}
       borderBottom={1}
       borderStyle={'solid'}
-      borderColor={useColorModeValue('gray.200', 'gray.700')}
-      shadow="sm"
+      borderColor={useColorModeValue('cyan.400', 'cyan.700')}
+      shadow="md"
     >
       <Container maxW={{ base: '6xl', xl: '7xl', '2xl': '8xl', '3xl': '9xl', '4xl': '10xl' }} px={{ base: 4, md: 6 }}>
         <Flex
@@ -107,8 +107,8 @@ export default function Navbar() {
               mr={2}
             />
             <Link
-              as={RouterLink}
-              to="/"
+              href="#home"
+              onClick={(e) => handleNavClick(e, '#home')}
               _hover={{
                 textDecoration: 'none',
               }}
@@ -116,9 +116,10 @@ export default function Navbar() {
               <Heading
                 fontSize={{ base: 'xl', md: '3xl' }}
                 fontWeight="bold"
-                color={useColorModeValue('gray.800', 'white')}
+                color={useColorModeValue('cyan.400', 'cyan.400')}
+                letterSpacing="wider"
                 _hover={{
-                  color: useColorModeValue('brand.400', 'brand.200'),
+                  color: useColorModeValue('cyan.300', 'cyan.300'),
                 }}
               >
                 Jack Buchanan
@@ -141,10 +142,10 @@ export default function Navbar() {
                     onClick={(e) => handleNavClick(e, navItem.href)}
                     fontSize={{ base: 'lg', md: 'xl' }}
                     fontWeight="medium"
-                    color={useColorModeValue('gray.600', 'gray.200')}
+                    color={useColorModeValue('gray.100', 'gray.100')}
                     _hover={{
                       textDecoration: 'none',
-                      color: useColorModeValue('brand.400', 'brand.200'),
+                      color: useColorModeValue('cyan.400', 'cyan.300'),
                     }}
                   >
                     {navItem.label}
@@ -164,18 +165,22 @@ export default function Navbar() {
               <Button
                 as={Link}
                 href="#contact"
-                onClick={(e) => handleNavClick(e, '#contact')}
+                onClick={(e) => {
+                  handleNavClick(e, '#contact')
+                  setTimeout(onToggle, 300)
+                }}
                 display={{ base: 'none', md: 'inline-flex' }}
                 fontSize={{ base: 'md', md: 'lg' }}
                 fontWeight={600}
-                color={'white'}
-                bg={'brand.400'}
+                color={'gray.900'}
+                bg={'cyan.400'}
                 _hover={{
-                  bg: 'brand.500',
+                  bg: 'cyan.300',
                 }}
                 px={6}
                 rounded={'full'}
                 size={{ base: 'sm', md: 'md' }}
+                shadow="md"
               >
                 Get Started
               </Button>
@@ -189,10 +194,10 @@ export default function Navbar() {
         <Box
           p={4}
           display={{ md: 'none' }}
-          bg={useColorModeValue('white', 'gray.800')}
+          bg={useColorModeValue('gray.900', 'gray.900')}
           borderBottom={1}
           borderStyle={'solid'}
-          borderColor={useColorModeValue('gray.200', 'gray.700')}
+          borderColor={useColorModeValue('cyan.400', 'cyan.700')}
         >
           <Stack as={'nav'} spacing={4}>
             {NAV_ITEMS.map((navItem) => (
@@ -202,16 +207,15 @@ export default function Navbar() {
                 href={navItem.href}
                 onClick={(e) => {
                   handleNavClick(e, navItem.href)
-                  onToggle() // Close menu after clicking
+                  setTimeout(onToggle, 300)
                 }}
                 fontSize="lg"
                 fontWeight="medium"
-                color={useColorModeValue('gray.600', 'gray.200')}
+                color={useColorModeValue('gray.100', 'gray.100')}
                 borderRadius="md"
                 _hover={{
                   textDecoration: 'none',
-                  color: useColorModeValue('brand.400', 'brand.200'),
-                  bg: useColorModeValue('gray.50', 'gray.700'),
+                  color: useColorModeValue('cyan.400', 'cyan.300'),
                 }}
               >
                 {navItem.label}
@@ -222,14 +226,14 @@ export default function Navbar() {
               href="#contact"
               onClick={(e) => {
                 handleNavClick(e, '#contact')
-                onToggle() // Close menu after clicking
+                setTimeout(onToggle, 300)
               }}
               fontSize="lg"
               fontWeight={600}
-              color={'white'}
-              bg={'brand.400'}
+              color={'gray.900'}
+              bg={'cyan.400'}
               _hover={{
-                bg: 'brand.500',
+                bg: 'cyan.300',
               }}
               w="full"
               rounded={'full'}

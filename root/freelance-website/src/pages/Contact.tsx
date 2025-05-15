@@ -114,47 +114,6 @@ export default function Contact() {
               </Stack>
             </form>
           </Stack>
-
-          <Stack spacing={8} flex={1}>
-            <Box>
-              <Heading fontSize={'2xl'}>Contact Information</Heading>
-              <Stack mt={4} spacing={4}>
-                <Text>
-                  <strong>Email:</strong> your.email@example.com
-                </Text>
-                <Text>
-                  <strong>Location:</strong> Your City, Country
-                </Text>
-                <Text>
-                  <strong>Availability:</strong> Monday - Friday, 9:00 AM - 6:00 PM
-                </Text>
-              </Stack>
-            </Box>
-
-            <Box>
-              <Heading fontSize={'2xl'}>Follow Me</Heading>
-              <Stack mt={4} spacing={4}>
-                <Text>
-                  <strong>LinkedIn:</strong>{' '}
-                  <a href="#" style={{ color: 'blue' }}>
-                    linkedin.com/in/yourprofile
-                  </a>
-                </Text>
-                <Text>
-                  <strong>GitHub:</strong>{' '}
-                  <a href="#" style={{ color: 'blue' }}>
-                    github.com/yourusername
-                  </a>
-                </Text>
-                <Text>
-                  <strong>Twitter:</strong>{' '}
-                  <a href="#" style={{ color: 'blue' }}>
-                    twitter.com/yourhandle
-                  </a>
-                </Text>
-              </Stack>
-            </Box>
-          </Stack>
         </Stack>
       </Container>
     </Box>

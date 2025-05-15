@@ -23,7 +23,7 @@ export default function Footer() {
         justify={{ base: 'center', md: 'space-between' }}
         align={{ base: 'center', md: 'center' }}
       >
-        <Text>© 2024 Your Name. All rights reserved</Text>
+        <Text>© 2024 Jack Buchanan. All rights reserved</Text>
         <Stack direction={'row'} spacing={6}>
           <Link href="#" isExternal color="gray.500" _hover={{ color: 'blue.500' }}>
             <FaTwitter size="20px" />
